@@ -5,6 +5,7 @@ import (
 	"commonService/log/internal/utils/env"
 	zaplib "commonService/log/zap-extension"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/hashicorp/go-multierror"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -47,10 +48,10 @@ const (
 
 	customTimeLayout = "2006-01-02 15:04:05.999999-07:00"
 
-	DefaultLogFileName    = "server"
-	SysErrorLogFileName   = "sys_error"
-	SysLogFileName        = "sys"
-	DefaultTracingFileLog = "traffic_recording"
+	DefaultLogFileName     = "server"
+	SysErrorLogFileName    = "sys_error"
+	SysLogFileName         = "sys"
+	DefaultTracingFileName = "traffic_recording"
 )
 
 var (
@@ -126,6 +127,58 @@ func initLogLevel(config *Config) {
 	initialLogLevel = level
 	SetLevel(level, 0)
 
+}
+
+// GetLogger 返回logger，log将会输出到./log/error.file和./log/server.log
+func GetLogger() *zap.Logger {
+	loggerInitOnce.Do(func() {
+		config := &Config{
+			Level:      InfoLvl,
+			SplitLevel: SplitNone,
+			PrintToStd: PrintToStd_NONE,
+		}
+		initDefaultLogger(config)
+	})
+	return logger
+}
+
+// GetSysLogger 返回system logger
+// 日志将输出到./log/sys_error.log和./log/sys.log
+// 这个logger应只被用于系统框架，请使用GetLogger()对于业务日志
+func GetSysLogger() *zap.Logger {
+	sysLoggerInitOnce.Do(func() {
+		config := &Config{
+			Level:      InfoLvl,
+			PrintToStd: PrintToStd_NONE,
+		}
+		initSystemLogger(config)
+	})
+	return sysLogger
+}
+
+func GetTracingLogger() *zap.Logger {
+	tracingLoggerInitOnce.Do(func() {
+		config := &Config{
+			Level:              InfoLvl,
+			TracingLogFileName: DefaultTracingFileName,
+		}
+		initTracingLogger(config)
+	})
+	return tracingLogger
+}
+
+func Sync() error {
+	var res *multierror.Error
+	if err := GetLogger().Sync(); err != nil {
+		res = multierror.Append(res, err)
+	}
+	if err := GetSysLogger().Sync(); err != nil {
+		res = multierror.Append(res, err)
+	}
+	if err := GetTracingLogger().Sync(); err != nil {
+		res = multierror.Append(res, err)
+	}
+	return res
 }
 
 func defaultLevel() zapcore.Level {
@@ -294,11 +347,11 @@ func initSystemLogger(config *Config) {
 func initTracingLogger(config *Config) {
 	printToStd := config.PrintToStd
 	if config.TracingLogFileName == "" {
-		config.TracingLogFileName = DefaultTracingFileLog
+		config.TracingLogFileName = DefaultTracingFileName
 	}
 	for _, fileName := range nameMap {
 		if config.TracingLogFileName == fileName {
-			config.TracingLogFileName = DefaultTracingFileLog
+			config.TracingLogFileName = DefaultTracingFileName
 		}
 	}
 	var opts []option
@@ -384,4 +437,28 @@ func getDefaultOpt(config *Config) []option {
 		return level >= GetLevel()
 	}))
 	return opts
+}
+
+// SetLogFileName 设置按级别拆分的日志文件名。
+// 如果newName有效且设置成功返回true，如果newName与其他日志文件重复且设置失败返回false。
+// 应在记录器初始化之前调用。
+// 例如SetLogFileName(log.DebugLvl，"my_debug")，那么所有的调试日志将写入my_debug.log。
+func SetLogFileName(level LogLevel, newName string) bool {
+	if !checkLogFileNameValid(level, newName) {
+		return false
+	}
+	nameMap[level] = newName
+	return true
+}
+
+func checkLogFileNameValid(level LogLevel, newName string) bool {
+	if newName == "" || newName == SysLogFileName || newName == SysErrorLogFileName || newName == DefaultLogFileName || newName == DefaultTracingFileName {
+		return false
+	}
+	for l, s := range nameMap {
+		if l != level && newName == s {
+			return false
+		}
+	}
+	return true
 }

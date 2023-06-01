@@ -3,14 +3,15 @@ module commonService
 go 1.19
 
 require (
-	git.garena.com/shopee/shopee-tracing/zap-extension v0.0.0-20210629081750-fb6eee7c390c
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	go.uber.org/zap v1.24.0
 )
 
 require (
 	github.com/golang/protobuf v1.3.3 // indirect
+	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect

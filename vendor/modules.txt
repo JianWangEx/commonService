@@ -1,6 +1,3 @@
-# git.garena.com/shopee/shopee-tracing/zap-extension v0.0.0-20210629081750-fb6eee7c390c
-## explicit; go 1.15
-git.garena.com/shopee/shopee-tracing/zap-extension
 # github.com/golang/protobuf v1.3.3
 ## explicit; go 1.12
 github.com/golang/protobuf/jsonpb
@@ -18,6 +15,12 @@ github.com/grpc-ecosystem/go-grpc-middleware/logging/settable
 github.com/grpc-ecosystem/go-grpc-middleware/logging/zap
 github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap
 github.com/grpc-ecosystem/go-grpc-middleware/tags
+# github.com/hashicorp/errwrap v1.0.0
+## explicit
+github.com/hashicorp/errwrap
+# github.com/hashicorp/go-multierror v1.1.1
+## explicit; go 1.13
+github.com/hashicorp/go-multierror
 # github.com/natefinch/lumberjack v2.0.0+incompatible
 ## explicit
 github.com/natefinch/lumberjack
