@@ -59,9 +59,9 @@ var (
 	sysLogger     *zap.Logger
 	tracingLogger *zap.Logger
 
-	loggerInitOnce        sync.Once
-	sysLoggerInitOnce     sync.Once
-	tracingLoggerInitOnce sync.Once
+	loggerInitOnce    sync.Once
+	sysLoggerInitOnce sync.Once
+	//tracingLoggerInitOnce sync.Once
 
 	initialLogLevel LogLevel
 	logLevel        atomic.Int32
@@ -112,10 +112,10 @@ func InitLogger(config *Config) {
 		initSystemLogger(config)
 	})
 
-	tracingLoggerInitOnce.Do(func() {
-		// 初始化 tracing logger
-		initTracingLogger(config)
-	})
+	//tracingLoggerInitOnce.Do(func() {
+	//	// 初始化 tracing logger
+	//	initTracingLogger(config)
+	//})
 
 }
 
@@ -156,16 +156,16 @@ func GetSysLogger() *zap.Logger {
 	return sysLogger
 }
 
-func GetTracingLogger() *zap.Logger {
-	tracingLoggerInitOnce.Do(func() {
-		config := &Config{
-			Level:              InfoLvl,
-			TracingLogFileName: DefaultTracingFileName,
-		}
-		initTracingLogger(config)
-	})
-	return tracingLogger
-}
+//func GetTracingLogger() *zap.Logger {
+//	tracingLoggerInitOnce.Do(func() {
+//		config := &Config{
+//			Level:              InfoLvl,
+//			TracingLogFileName: DefaultTracingFileName,
+//		}
+//		initTracingLogger(config)
+//	})
+//	return tracingLogger
+//}
 
 func Sync() error {
 	var res *multierror.Error
@@ -175,9 +175,9 @@ func Sync() error {
 	if err := GetSysLogger().Sync(); err != nil {
 		res = multierror.Append(res, err)
 	}
-	if err := GetTracingLogger().Sync(); err != nil {
-		res = multierror.Append(res, err)
-	}
+	//if err := GetTracingLogger().Sync(); err != nil {
+	//	res = multierror.Append(res, err)
+	//}
 	return res
 }
 

@@ -142,27 +142,27 @@ func getSysLogger(ctx context.Context) *zap.Logger {
 	return GetSysLogger().With(zap.String(zaplib.TraceKey, traceID))
 }
 
-func getTracingLogger(ctx context.Context) *zap.Logger {
-	traceID := GetTraceIDFromCtx(ctx)
-	return GetTracingLogger().With(zap.String(zaplib.TraceKey, traceID))
-}
-
-// Tracing Log Interface
-
-// Tracing write log,info level only
-func Tracing(ctx context.Context, msg string, fields ...zap.Field) {
-	getTracingLogger(ctx).Info(msg, fields...)
-}
-
-// Tracingf tracing sugar log,info level only
-func Tracingf(ctx context.Context, args ...interface{}) {
-	getTracingLogger(ctx).Sugar().Info(args)
-}
-
-func TracingDebug(ctx context.Context, msg string, fields ...zap.Field) {
-	getTracingLogger(ctx).Debug(msg, fields...)
-}
-
-func TracingDebugf(ctx context.Context, args ...interface{}) {
-	getTracingLogger(ctx).Sugar().Debug(args)
-}
+//func getTracingLogger(ctx context.Context) *zap.Logger {
+//	traceID := GetTraceIDFromCtx(ctx)
+//	return GetTracingLogger().With(zap.String(zaplib.TraceKey, traceID))
+//}
+//
+//// Tracing Log Interface
+//
+//// Tracing write log,info level only
+//func Tracing(ctx context.Context, msg string, fields ...zap.Field) {
+//	getTracingLogger(ctx).Info(msg, fields...)
+//}
+//
+//// Tracingf tracing sugar log,info level only
+//func Tracingf(ctx context.Context, args ...interface{}) {
+//	getTracingLogger(ctx).Sugar().Info(args)
+//}
+//
+//func TracingDebug(ctx context.Context, msg string, fields ...zap.Field) {
+//	getTracingLogger(ctx).Debug(msg, fields...)
+//}
+//
+//func TracingDebugf(ctx context.Context, args ...interface{}) {
+//	getTracingLogger(ctx).Sugar().Debug(args)
+//}
