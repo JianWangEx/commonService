@@ -2,8 +2,8 @@
 package log
 
 import (
-	zaplib "commonService/log/zap-extension"
 	"context"
+	zaplib "github.com/JianWangEx/commonService/log/zap-extension"
 	"go.uber.org/zap"
 )
 

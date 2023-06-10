@@ -1,4 +1,4 @@
-module commonService
+module github.com/JianWangEx/commonService
 
 go 1.19
 

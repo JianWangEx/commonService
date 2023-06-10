@@ -2,8 +2,8 @@
 package log
 
 import (
-	"commonService/log/internal/utils/env"
-	zaplib "commonService/log/zap-extension"
+	"github.com/JianWangEx/commonService/log/internal/utils/env"
+	zaplib "github.com/JianWangEx/commonService/log/zap-extension"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/hashicorp/go-multierror"
 	"github.com/natefinch/lumberjack"
