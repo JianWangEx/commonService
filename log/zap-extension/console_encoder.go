@@ -220,7 +220,7 @@ func (c *consoleEncoder) AppendDuration(val time.Duration) {
 
 func (c *consoleEncoder) clone() *consoleEncoder {
 	clone := getConsoleEncoder()
-	clone.TraceKey = c.traceID
+	clone.traceID = c.traceID
 	clone.EncoderConfig = c.EncoderConfig
 	clone.openNamespaces = c.openNamespaces
 	clone.buf = getBuffer()
