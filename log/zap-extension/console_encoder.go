@@ -19,7 +19,7 @@ const _hex = "0123456789abcdef"
 // _consolePool 同步对象池(sync.Pool), 用于复用consoleEncoder对象
 var _consolePool = sync.Pool{
 	New: func() interface{} {
-		return consoleEncoder{}
+		return &consoleEncoder{}
 	},
 }
 
