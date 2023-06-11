@@ -3,21 +3,25 @@ package log
 
 import (
 	"context"
+	"github.com/JianWangEx/commonService/log/zap-extension"
+	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"go.uber.org/zap"
 )
 
-//func WithNewTraceLog(operationName string, ctx context.Context) (context.Context, tracing.Span) {
-//	spanCtx := tracing.GetSpanContext(ctx)
-//	if spanCtx == nil {
-//		spanCtx = tracing.NewSpanContextGenerator("").NewSpanContext()
-//	}
-//	span, _ := tracing.GlobalTracer().NewSpan(operationName, spanCtx)
-//	ctx = tracing.WithSpanContext(ctx, spanCtx)
-//	newLogger := GetLogger().With(zap.String(grpczap.TraceKey, spanCtx.String()))
-//	ctx = ctxzap.ToContext(ctx, newLogger)
-//	return ctx, span
-//}
+// WithNewTraceLog
+//
+//	@Description: 构建带有traceId的logger
+//	@param ctx
+//	@return context.Context
+//
+// TODO: 仅支持单个请求跟踪记录
+func WithNewTraceLog(ctx context.Context) context.Context {
+	traceId := uuid.New().String()
+	newLogger := GetLogger().With(zap.String(zap_extension.TraceKey, traceId))
+	ctx = ctxzap.ToContext(ctx, newLogger)
+	return ctx
+}
 
 func GetTraceLogFromCtx(ctx context.Context) *zap.Logger {
 	l := ctxzap.Extract(ctx)

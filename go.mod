@@ -3,6 +3,7 @@ module github.com/JianWangEx/commonService
 go 1.19
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/natefinch/lumberjack v2.0.0+incompatible
