@@ -9,6 +9,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	contextKeyForTraceId = "ti"
+)
+
 // WithNewTraceLog
 //
 //	@Description: 构建带有traceId的logger
@@ -18,6 +22,7 @@ import (
 // TODO: 仅支持单个请求跟踪记录
 func WithNewTraceLog(ctx context.Context) context.Context {
 	traceId := uuid.New().String()
+	ctx = context.WithValue(ctx, contextKeyForTraceId, traceId)
 	newLogger := GetLogger().With(zap.String(zap_extension.TraceKey, traceId))
 	ctx = ctxzap.ToContext(ctx, newLogger)
 	return ctx
@@ -36,8 +41,9 @@ func WithLogger(ctx context.Context, logger *zap.Logger) context.Context {
 }
 
 func GetTraceIDFromCtx(ctx context.Context) string {
-	//if spanCtx := tracing.GetSpanContext(ctx); spanCtx != nil {
-	//	return spanCtx.String()
-	//}
-	return ""
+	traceId, ok := ctx.Value(contextKeyForTraceId).(string)
+	if !ok {
+		return ""
+	}
+	return traceId
 }
