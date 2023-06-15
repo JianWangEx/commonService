@@ -12,7 +12,7 @@ import (
 
 type ModelOutputFormatter struct {
 	ModuleName         string
-	PackagePath        string   // 包路径
+	ModelPackagePath   string   // model文件包路径
 	NeedImportPkgPaths []string // 需要导入的包路径
 	TableNames         []string
 	TablesColumns      map[string][]TableColumn
@@ -39,8 +39,8 @@ func GetColumnDefinition(tc TableColumn) string {
 	return builder.String()
 }
 
-func NewFormatFileHelpers(mf *ModelOutputFormatter) []FormatFileHelper {
-	var helpers = make([]FormatFileHelper, 0)
+func NewFormatFileHelpers(mf *ModelOutputFormatter) []ModelFormatFileHelper {
+	var helpers = make([]ModelFormatFileHelper, 0)
 	for _, tableName := range mf.TableNames {
 		var builder strings.Builder
 		for _, column := range mf.TablesColumns[tableName] {
@@ -49,8 +49,8 @@ func NewFormatFileHelpers(mf *ModelOutputFormatter) []FormatFileHelper {
 			builder.WriteString("\n")
 		}
 
-		helper := FormatFileHelper{
-			PkgName:                util.GetPackageNameFromPackageFullPath(mf.PackagePath),
+		helper := ModelFormatFileHelper{
+			PkgName:                util.GetPackageNameFromPackageFullPath(mf.ModelPackagePath),
 			NeedImportPkgPaths:     NormalizeNeedImportPaths(mf.NeedImportPkgPaths),
 			TableStructName:        GetTableStructName(tableName),
 			TableName:              tableName,
@@ -63,7 +63,7 @@ func NewFormatFileHelpers(mf *ModelOutputFormatter) []FormatFileHelper {
 	return helpers
 }
 
-type FormatFileHelper struct {
+type ModelFormatFileHelper struct {
 	PkgName                string
 	NeedImportPkgPaths     string
 	TableStructName        string

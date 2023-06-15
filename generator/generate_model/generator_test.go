@@ -16,9 +16,9 @@ func TestGenerate(t *testing.T) {
 				"private_training_course_record_tab",
 			},
 		},
-		ModuleName: "yoga-api-go",
-		Path:       "internal/data/model",
-		FileNames:  nil,
+		ModuleName:       "yoga-api-go",
+		ModelPackagePath: "internal/data/model",
+		FileNames:        nil,
 		NeedImportPkgPaths: []string{
 			"time",
 			"yoga-api-go/internal/config",

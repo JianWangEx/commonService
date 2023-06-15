@@ -17,7 +17,9 @@ type TableColumn struct {
 type Config struct {
 	*DBConfig
 	ModuleName         string
-	Path               string   // 包路径
+	ModelPackagePath   string   // model文件包路径
+	DaoPackagePath     string   // dao文件包路径
+	DaoImplPackagePath string   // dao层impl文件路径
 	FileNames          []string // 文件名
 	NeedImportPkgPaths []string // 需要导入的包路径
 }
@@ -33,7 +35,7 @@ func (c *Config) Generate() error {
 	c.UpdateFileNames()
 	formatter := &ModelOutputFormatter{
 		ModuleName:         c.ModuleName,
-		PackagePath:        c.Path,
+		ModelPackagePath:   c.ModelPackagePath,
 		NeedImportPkgPaths: c.NeedImportPkgPaths,
 		TableNames:         c.TableNames,
 		TablesColumns:      tablesColumns,

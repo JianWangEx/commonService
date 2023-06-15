@@ -16,7 +16,7 @@ type ModelWriter struct {
 
 func NewModelWriter(c *Config, outputBytes map[string][]byte) *ModelWriter {
 	return &ModelWriter{
-		packagePath: c.Path,
+		packagePath: c.ModelPackagePath,
 		fileNames:   c.FileNames,
 		tableNames:  c.TableNames,
 		outputBytes: outputBytes,
