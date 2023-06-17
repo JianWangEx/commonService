@@ -68,7 +68,7 @@ func (c *Config) GetDBTablesAndColumns() (map[string][]TableColumn, error) {
 	var tablesColumns = make(map[string][]TableColumn, len(c.TableNames))
 	for _, t := range c.TableNames {
 		var columns []TableColumn
-		db.Raw("SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, COLUMN_KEY FROM columns WHERE table_schema=? AND table_name=?", c.DBName,
+		db.Raw("SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, COLUMN_KEY FROM columns WHERE table_schema=? AND table_name=? ORDER BY ORDINAL_POSITION", c.DBName,
 			t).Scan(&columns)
 		tablesColumns[t] = columns
 	}
