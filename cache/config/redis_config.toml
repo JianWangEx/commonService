@@ -1,0 +1,7 @@
+Addrs = ["43.138.128.110:6379"]
+ClientName = "commonServiceTest"
+DB = 2
+Password = "123456"
+DialTimeout = 3000000000   # nanosecond
+ReadTimeout = 1000000000   # nanosecond
+WriteTimeout = 1000000000 # nanosecond
