@@ -4,23 +4,29 @@ package cache
 import (
 	"context"
 	cacheConfig "github.com/JianWangEx/commonService/cache/config"
+	"github.com/patrickmn/go-cache"
 	"github.com/redis/go-redis/v9"
 	"sync"
 	"time"
 )
 
 var (
-	client *redisManager
+	client *cacheManager
 	once   sync.Once
 )
 
-func GetRedisManager() Client {
+type cacheManager struct {
+	redisClient      redis.UniversalClient
+	localCacheClient *LocalCacheManager
+}
+
+func GetCacheManager() Client {
 	return client
 }
 
 func getRedisConn() (redis.UniversalClient, error) {
 	// 获取redis config
-	config := cacheConfig.GetRedisConfig()
+	config := cacheConfig.GetCacheConfig()
 	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
 		Addrs:                 config.Addrs,
 		ClientName:            config.ClientName,
@@ -60,12 +66,22 @@ func getRedisConn() (redis.UniversalClient, error) {
 	return redisClient, nil
 }
 
+func getLocalCache() *LocalCacheManager {
+	// 获取local cache config
+	config := cacheConfig.GetCacheConfig()
+	return &LocalCacheManager{
+		cache.New(config.DefaultExpiration, config.CleanupInterval),
+	}
+}
+
 func Init() (initErr error) {
 	once.Do(func() {
 		redisClient, err := getRedisConn()
 		initErr = err
-		client = &redisManager{
-			redisClient: redisClient,
+		lc := getLocalCache()
+		client = &cacheManager{
+			redisClient:      redisClient,
+			localCacheClient: lc,
 		}
 	})
 	return

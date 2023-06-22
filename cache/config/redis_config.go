@@ -4,15 +4,11 @@ package config
 import (
 	"context"
 	"crypto/tls"
-	"github.com/JianWangEx/commonService/util"
 	"net"
-	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
-
-var tomlOnce sync.Once
 
 type RedisConfig struct {
 	// 单个主机或集群配置
@@ -154,17 +150,4 @@ type RedisConfig struct {
 
 	// 哨兵 Master Name，仅适用于 `Failover Client`
 	MasterName string
-}
-
-var redisConfigObj = &RedisConfig{}
-
-func InitRedisTomlConfig(path string) (err error) {
-	tomlOnce.Do(func() {
-		err = util.ParseTomlConfig(path, redisConfigObj)
-	})
-	return err
-}
-
-func GetRedisConfig() *RedisConfig {
-	return redisConfigObj
 }
