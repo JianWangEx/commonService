@@ -22,4 +22,6 @@ type Client interface {
 	Set(ctx context.Context, key string, value interface{}, expired time.Duration) error
 
 	Add(ctx context.Context, key string, value interface{}, expired time.Duration) error
+
+	Delete(ctx context.Context, key string) error
 }

@@ -93,6 +93,20 @@ func (c *cacheManager) Add(ctx context.Context, key string, value interface{}, e
 	return nil
 }
 
+func (c *cacheManager) Delete(ctx context.Context, key string) error {
+	storage := getStorage(key)
+	switch storage {
+	case Local:
+		c.localCacheClient.Delete(ctx, key)
+	default: // default is main
+		result := c.redisClient.Del(ctx, key)
+		if err := result.Err(); err != nil {
+			return errors.Wrapf(err, "redis cache err")
+		}
+	}
+	return nil
+}
+
 func getStorage(key string) Storage {
 	storage := Main
 	splits := strings.Split(key, ".")

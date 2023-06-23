@@ -1,7 +1,9 @@
 // Package constant @Author  wangjian    2023/6/21 8:25 PM
 package constant
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	// ErrorNilReceiverOrNotPtr means receiver is nil or not a pointer

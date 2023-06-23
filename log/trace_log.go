@@ -47,3 +47,13 @@ func GetTraceIDFromCtx(ctx context.Context) string {
 	}
 	return traceId
 }
+
+// CtxLogger means Logger with trace id
+func CtxLogger(ctx context.Context) *zap.Logger {
+	return GetTraceLogFromCtx(ctx)
+}
+
+// CtxSugar means Sugar Logger with trace id
+func CtxSugar(ctx context.Context) *zap.SugaredLogger {
+	return GetTraceLogFromCtx(ctx).Sugar()
+}
