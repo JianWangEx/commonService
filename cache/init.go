@@ -83,6 +83,9 @@ func Init() (initErr error) {
 			redisClient:      redisClient,
 			localCacheClient: lc,
 		}
+		handler = &BaseHandler{
+			client: client,
+		}
 	})
 	return
 }
