@@ -1,0 +1,33 @@
+2023-06-23 16:36:20.400443+08:00|ERROR|cache/add_cache_lock.go:117|-|addCacheLock panic,cache_key=mainTestLockKey, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-23 16:41:15.118758+08:00|ERROR|cache/add_cache_lock.go:117|-|addCacheLock panic,cache_key=mainTestLockKey, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-23 16:42:21.299311+08:00|ERROR|cache/add_cache_lock.go:117|-|addCacheLock panic,cache_key=mainTestLockKey, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-23 16:43:15.285462+08:00|ERROR|cache/add_cache_lock.go:117|-|addCacheLock panic,cache_key=mainTestLockKey, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-23 17:19:43.527588+08:00|WARN|cache/add_cache_lock.go:180|-|cache_is_too_slow|cache_key=mainTestLockKey,cache_value=8ab25d3b-51b7-48b6-bf2b-bea11e8aeeb7,time_token=2020992[ms]
+2023-06-23 17:19:43.630889+08:00|ERROR|cache/add_cache_lock.go:270|-|cache lock, release|cache lock already expire|cacheKey=mainTestLockKey, cacheValue=8ab25d3b-51b7-48b6-bf2b-bea11e8aeeb7, cacheTimeout=5000000000[ms]
+2023-06-23 17:20:28.382207+08:00|WARN|cache/add_cache_lock.go:180|-|cache_is_too_slow|cache_key=mainTestLockKey,cache_value=73ab42f9-934c-466c-950f-5111e10e5005,time_token=14160[ms]
+2023-06-30 09:29:01.20331+08:00|ERROR|cache/add_cache.go:115|-|addcCache panic,param=&{cacheKey:74de761c-39d4-4b1d-8b1b-e2fb10147bb0 timeout:30000000000 cacheBust:false encodeKeyType:md5 cacheStore:local canStoreResult:0x1028b4cb0}, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-30 09:29:25.890077+08:00|ERROR|cache/add_cache.go:115|-|addcCache panic,param=&{cacheKey:8b20344f-026a-44fe-96dd-f5ff99f0fc6c timeout:30000000000 cacheBust:false encodeKeyType:md5 cacheStore:local canStoreResult:0x105174e30}, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-30 09:30:50.385515+08:00|ERROR|cache/add_cache.go:115|-|addcCache panic,param=&{cacheKey:ccfdeadb-295a-4afb-8041-95d5365c751b timeout:30000000000 cacheBust:false encodeKeyType:md5 cacheStore:local canStoreResult:0x1015565a0}, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-30 09:31:33.756913+08:00|ERROR|cache/add_cache.go:115|-|addcCache panic,param=&{cacheKey:c9758a7c-a133-47c9-8a98-3bb73022afdc timeout:30000000000 cacheBust:false encodeKeyType:md5 cacheStore:local canStoreResult:0x10562a5a0}, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-30 09:32:01.145136+08:00|ERROR|cache/add_cache.go:115|-|addcCache panic,param=&{cacheKey:7493f8fd-49ff-4aab-85bf-5ba009cfa76a timeout:30000000000 cacheBust:false encodeKeyType:md5 cacheStore:local canStoreResult:0x1035325a0}, err=runtime error: invalid memory address or nil pointer dereference
+2023-06-30 09:43:15.077275+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=8aa62a7906cb5f65da1f8ad2a597ee20, err=cache miss
+2023-06-30 09:43:15.535681+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=8aa62a7906cb5f65da1f8ad2a597ee20, err=cache miss
+2023-06-30 09:43:19.159169+08:00|WARN|cache/add_cache.go:192|-|cache write is too slow|key_raw=16a93fef-36b7-4921-914d-d9930525457d,key=8aa62a7906cb5f65da1f8ad2a597ee20,value={"age":"1","name":"cat"},time=3622
+2023-06-30 09:43:19.159327+08:00|WARN|cache/add_cache.go:141|-|addCache call real function, key=16a93fef-36b7-4921-914d-d9930525457d,result is nil
+2023-06-30 09:43:46.048515+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=4e2a43c57cac474dd9e8c52c3ec2db54, err=cache miss
+2023-06-30 09:43:46.480569+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=4e2a43c57cac474dd9e8c52c3ec2db54, err=cache miss
+2023-06-30 09:43:47.026766+08:00|WARN|cache/add_cache.go:141|-|addCache call real function, key=9c493735-02f2-430f-ba59-c7b801e32891,result is nil
+2023-06-30 09:45:14.299081+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=a8cb436430e606f8fd568ddcc71a1086, err=cache miss
+2023-06-30 09:45:15.984123+08:00|WARN|cache/add_cache.go:199|-|cache_read_is_too_slow|key_raw=8a73ee4a-4744-4d12-9d64-c8c79a11d59a,key=a8cb436430e606f8fd568ddcc71a1086,value=null,time=4191
+2023-06-30 09:45:35.026614+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=a8cb436430e606f8fd568ddcc71a1086, err=cache miss
+2023-06-30 09:45:35.717886+08:00|WARN|cache/add_cache.go:199|-|cache_read_is_too_slow|key_raw=8a73ee4a-4744-4d12-9d64-c8c79a11d59a,key=a8cb436430e606f8fd568ddcc71a1086,value=null,time=2217
+2023-06-30 09:48:03.324182+08:00|WARN|cache/add_cache.go:141|-|addCache call real function, key=8a73ee4a-4744-4d12-9d64-c8c79a11d59a,result is nil
+2023-06-30 09:48:39.192903+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=a677412c09eebfc1c04fec18bca4c075, err=cache miss
+2023-06-30 09:49:02.997452+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=a677412c09eebfc1c04fec18bca4c075, err=cache miss
+2023-06-30 09:51:50.115286+08:00|WARN|cache/add_cache.go:141|-|addCache call real function, key=c8d05bb0-d83c-4c12-ab4a-9b76b05851e1,result is nil
+2023-06-30 09:51:58.924424+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=068662c4be257dfe3affabbb67443f4c, err=cache miss
+2023-06-30 09:52:01.554737+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=068662c4be257dfe3affabbb67443f4c, err=cache miss
+2023-06-30 09:56:12.450861+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=15756fdd9beee2b942fc7481e495c84d, err=cache miss
+2023-06-30 09:56:12.908013+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=15756fdd9beee2b942fc7481e495c84d, err=cache miss
+2023-06-30 09:58:16.836264+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=273a54347a2a171c0db60cef444e6453, err=cache miss
+2023-06-30 09:58:17.334816+08:00|WARN|cache/add_cache.go:170|-|addCache get from cache failed|key=273a54347a2a171c0db60cef444e6453, err=cache miss

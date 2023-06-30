@@ -44,3 +44,33 @@ func GetValue(value interface{}) interface{} {
 
 	return valToStore
 }
+
+func IsNil(i interface{}) bool {
+	if i == nil {
+		return true
+	}
+
+	switch reflect.TypeOf(i).Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
+		return reflect.ValueOf(i).IsNil()
+	}
+	return false
+}
+
+// IsPointerPointToNil judge whether pointer is point to a nil
+func IsPointerPointToNil(i interface{}) bool {
+	for true {
+		if i == nil {
+			return true
+		}
+		if reflect.ValueOf(i).Kind() == reflect.Ptr {
+			if reflect.ValueOf(i).IsNil() {
+				return true
+			}
+			i = reflect.ValueOf(i).Elem().Interface()
+		} else {
+			break
+		}
+	}
+	return false
+}

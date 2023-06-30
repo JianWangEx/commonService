@@ -18,6 +18,14 @@ func (s Storage) name() string {
 }
 
 const (
+	defaultCacheTimeout       = 30
+	defaultCacheTimeoutSecond = defaultCacheTimeout * time.Second
+	cacheBust                 = false
+
+	maxLogValueLength = 1000
+)
+
+const (
 	defaultCacheLockTimeout = 300 * time.Second
 	defaultLockingTimeout   = 0
 
@@ -32,3 +40,11 @@ const (
 var defaultCacheValueFunc = func() string {
 	return uuid.NewString()
 }
+
+type EncodeKeyType string
+
+const (
+	Utf8   EncodeKeyType = "utf-8"
+	Md5    EncodeKeyType = "md5"
+	Base64 EncodeKeyType = "base64"
+)

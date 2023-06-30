@@ -12,4 +12,6 @@ var (
 	ErrorCacheMiss = errors.New("cache miss")
 	// ErrorFailedOperation means redis return failed
 	ErrorFailedOperation = errors.New("operation failed")
+	// ErrorAddCacheGotNilResult means add cache real func return nil
+	ErrorAddCacheGotNilResult = errors.New("got nil result from real function")
 )
