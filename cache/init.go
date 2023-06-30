@@ -70,7 +70,7 @@ func getLocalCache() *LocalCacheManager {
 	// 获取local cache config
 	config := cacheConfig.GetCacheConfig()
 	return &LocalCacheManager{
-		cache.New(config.DefaultExpiration, config.CleanupInterval),
+		cache.New(time.Duration(config.DefaultExpiration)*time.Minute, time.Duration(config.CleanupInterval)*time.Minute),
 	}
 }
 
