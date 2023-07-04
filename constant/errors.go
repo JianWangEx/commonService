@@ -15,3 +15,14 @@ var (
 	// ErrorAddCacheGotNilResult means add cache real func return nil
 	ErrorAddCacheGotNilResult = errors.New("got nil result from real function")
 )
+
+var (
+	ErrorSliceDataTypeIsNotStruct   = errors.New("slice data type is not struct")
+	ErrorTypeIsNotSlice             = errors.New("type is not slice")
+	ErrorTypeNotPtrOrIsNil          = errors.New("type point to nil or is nil")
+	ErrorDataStructNotMatch         = errors.New("data struct not match")
+	ErrorSheetAttributeRepeat       = errors.New("sheet attribute repeat")
+	ErrorStructDataTypeNotSupported = errors.New("struct data type not supported")
+	ErrorParamNumberIncorrect       = errors.New("param number is incorrect")
+	ErrorInvalidParamType           = errors.New("invalid param type")
+)
