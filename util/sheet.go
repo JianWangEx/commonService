@@ -6,6 +6,7 @@ import (
 	"github.com/xuri/excelize/v2"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 type XLSLSheetConfig struct {
@@ -13,11 +14,11 @@ type XLSLSheetConfig struct {
 	SheetName string
 }
 
-type CalculateFunction func(params ...interface{}) error
+type CalculateFunction func(paramsMapping map[string]interface{}) error
 
 type SheetHandler interface {
 	GetFieldVerificationMapping() map[string][]string
-	GetCombinedFieldsCalculateFunction() CalculateFunction
+	GetCombinedFieldsCalculateFunction() map[string]CalculateFunction
 }
 
 // ParseXLSLSheet
@@ -39,98 +40,168 @@ func ParseXLSLSheet(config *XLSLSheetConfig, receiver interface{}) error {
 		panic(err)
 	}
 
-	// 检查属性行
-	m, err := preCheck(rows[0], receiver)
+	// 校验receiver是否为指向结构体数组的指针
+	err = checkType(receiver)
 	if err != nil {
 		return err
 	}
 
 	rv := reflect.ValueOf(receiver)
-	sv := rv.Elem()
+	receiverSliceValue := rv.Elem()
+	entityValue := reflect.New(receiverSliceValue.Type().Elem())
 
-	// 映射数据
-	for i := 1; i < len(rows); i++ {
-		row := rows[i]
-		elementType := sv.Type().Elem()
-		// 构造一个新的零值结构体对象
-		obj := reflect.New(elementType).Elem()
-		for i := elementType.NumField() - 1; i >= 0; i-- {
-			field := elementType.Field(i)
-			v := row[m[field.Name]]
-			fieldValue := obj.FieldByName(field.Name)
-			switch field.Type.Kind() {
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				tem, err := strconv.ParseInt(v, 10, 64)
-				if err != nil {
-					return err
-				}
-				fieldValue.SetInt(tem)
-			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				tem, err := strconv.ParseUint(v, 10, 64)
-				if err != nil {
-					return err
-				}
-				fieldValue.SetUint(tem)
-			case reflect.String:
-				fieldValue.SetString(v)
-			case reflect.Bool:
-				tmp, err := strconv.ParseBool(v)
-				if err != nil {
-					return err
-				}
-				fieldValue.SetBool(tmp)
-			case reflect.Float32, reflect.Float64:
-				tmp, err := strconv.ParseFloat(v, 64)
-				if err != nil {
-					return err
-				}
-				fieldValue.SetFloat(tmp)
-			default:
-				return constant.ErrorStructDataTypeNotSupported
-			}
-		}
-		sv = reflect.Append(sv, obj)
+	// 检查属性行
+	rowValueIndexMapping, fieldColumnsMapping, err := preCheck(rows[0], entityValue)
+	if err != nil {
+		return err
 	}
 
-	reflect.ValueOf(receiver).Elem().Set(sv)
+	// 将每一行数据写入receiverSliceValue
+	for _, row := range rows {
+		newValue, err := writeData(rowValueIndexMapping, row, entityValue.Type(), fieldColumnsMapping)
+		if err != nil {
+			return err
+		}
+		receiverSliceValue = reflect.Append(receiverSliceValue, newValue)
+	}
+	rv.Set(receiverSliceValue)
+
+	reflect.ValueOf(receiver).Elem().Set(receiverSliceValue)
 	return nil
 }
 
-func preCheck(raws []string, receiver interface{}) (map[string]int, error) {
-	if receiver == nil {
-		return nil, constant.ErrorTypeNotPtrOrIsNil
+func preCheck(columns []string, value reflect.Value) (map[string]int, map[string][]string, error) {
+	// step1. 生成sheet表列名->下标值映射
+	rowValueIndexMapping := make(map[string]int, len(columns))
+	for i, row := range columns {
+		if _, ok := rowValueIndexMapping[row]; !ok {
+			return nil, nil, constant.ErrorSheetAttributeRepeat
+		}
+		rowValueIndexMapping[row] = i
 	}
+
+	fieldColumnsMapping := make(map[string][]string)
+	// step2. 检查value是否实现SheetHandler接口
+	iType := reflect.TypeOf((*SheetHandler)(nil)).Elem()
+	if value.Type().Implements(iType) {
+		method := value.MethodByName("GetFieldVerificationMapping")
+		f := method.Call(nil)
+		fieldColumnsMapping = f[0].Interface().(map[string][]string)
+	}
+
+	// step3. 检查value字段值是否匹配
+	vt := value.Type()
+	for i := vt.NumField() - 1; i >= 0; i-- {
+		fieldName := vt.Field(i).Name
+		if _, ok := rowValueIndexMapping[fieldName]; !ok {
+			if cs, ok := fieldColumnsMapping[fieldName]; ok {
+				for _, c := range cs {
+					if _, ok := rowValueIndexMapping[c]; !ok {
+						return nil, nil, constant.ErrorDataStructNotMatch
+					}
+				}
+			} else {
+				return nil, nil, constant.ErrorDataStructNotMatch
+			}
+		}
+	}
+
+	return rowValueIndexMapping, fieldColumnsMapping, nil
+}
+
+func checkType(receiver interface{}) error {
+	if receiver == nil {
+		return constant.ErrorTypeNotPtrOrIsNil
+	}
+
 	rv := reflect.TypeOf(receiver)
 	if rv.Kind() != reflect.Ptr {
-		return nil, constant.ErrorTypeNotPtrOrIsNil
+		return constant.ErrorTypeNotPtrOrIsNil
 	}
+
 	sliceType := rv.Elem()
-	// 检查receiver类型是否为slice
 	if sliceType.Kind() != reflect.Slice {
-		return nil, constant.ErrorTypeIsNotSlice
-	}
-	elementType := sliceType.Elem()
-	// 检查receiver元素类型是否为结构体
-	if elementType.Kind() != reflect.Struct {
-		return nil, constant.ErrorSliceDataTypeIsNotStruct
+		return constant.ErrorTypeIsNotSlice
 	}
 
-	if len(raws) != elementType.NumField() {
-		return nil, constant.ErrorDataStructNotMatch
+	structType := sliceType.Elem()
+	if structType.Kind() != reflect.Struct {
+		return constant.ErrorSliceDataTypeIsNotStruct
 	}
 
-	// 校验属性key是否相同
-	m := make(map[string]int, len(raws))
-	for i, raw := range raws {
-		if _, ok := m[raw]; ok {
-			return nil, constant.ErrorSheetAttributeRepeat
-		}
-		m[raw] = i
+	return nil
+}
+
+func writeData(rowValueIndexMapping map[string]int, data []string, t reflect.Type, fieldColumnsMapping map[string][]string) (reflect.Value, error) {
+	res := reflect.New(t).Elem()
+	fieldFunctionMapping := make(map[string]CalculateFunction)
+	if len(fieldColumnsMapping) > 0 {
+		method := res.MethodByName("GetCombinedFieldsCalculateFunction")
+		f := method.Call(nil)
+		fieldFunctionMapping = f[0].Interface().(map[string]CalculateFunction)
 	}
-	for i := elementType.NumField() - 1; i >= 0; i-- {
-		if _, ok := m[elementType.Field(i).Name]; !ok {
-			return nil, constant.ErrorDataStructNotMatch
+	for i := res.NumField() - 1; i >= 0; i-- {
+		rowIndex, ok := rowValueIndexMapping[t.Field(i).Name]
+		if !ok {
+			columns := fieldColumnsMapping[t.Field(i).Name]
+			columnValueMapping := make(map[string]interface{})
+			for _, column := range columns {
+				fName, fType := getColumnValueAndType(column)
+				if ri, ok := rowValueIndexMapping[fName]; !ok {
+					return reflect.Value{}, constant.ErrorDataStructNotMatch
+				} else {
+					rowValue, err := AssertValue(data[ri], fType)
+					if err != nil {
+						return reflect.Value{}, err
+					}
+					columnValueMapping[fName] = rowValue
+				}
+			}
+			fn := fieldFunctionMapping[t.Field(i).Name]
+			err := fn(columnValueMapping)
+			if err != nil {
+				return reflect.Value{}, err
+			}
+			continue
 		}
+		v := data[rowIndex]
+		fieldValue := reflect.New(res.Field(i).Type())
+		switch fieldValue.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			tem, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				return reflect.Value{}, err
+			}
+			fieldValue.SetInt(tem)
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			tem, err := strconv.ParseUint(v, 10, 64)
+			if err != nil {
+				return reflect.Value{}, err
+			}
+			fieldValue.SetUint(tem)
+		case reflect.String:
+			fieldValue.SetString(v)
+		case reflect.Bool:
+			tmp, err := strconv.ParseBool(v)
+			if err != nil {
+				return reflect.Value{}, err
+			}
+			fieldValue.SetBool(tmp)
+		case reflect.Float32, reflect.Float64:
+			tmp, err := strconv.ParseFloat(v, 64)
+			if err != nil {
+				return reflect.Value{}, err
+			}
+			fieldValue.SetFloat(tmp)
+		default:
+			return reflect.Value{}, constant.ErrorStructDataTypeNotSupported
+		}
+		res.Field(i).Set(fieldValue)
 	}
-	return m, nil
+	return res, nil
+}
+
+func getColumnValueAndType(s string) (string, string) {
+	sArr := strings.Split(s, "_")
+	return sArr[0], sArr[1]
 }

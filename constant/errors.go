@@ -25,4 +25,5 @@ var (
 	ErrorStructDataTypeNotSupported = errors.New("struct data type not supported")
 	ErrorParamNumberIncorrect       = errors.New("param number is incorrect")
 	ErrorInvalidParamType           = errors.New("invalid param type")
+	ErrorInterfaceMethodNotFound    = errors.New("interface method not found")
 )

@@ -2,6 +2,7 @@
 package util
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"reflect"
 )
@@ -73,4 +74,80 @@ func IsPointerPointToNil(i interface{}) bool {
 		}
 	}
 	return false
+}
+
+// AssertValue
+//
+//	@Description: 根据typeName断言value至指定类型
+//	@param value
+//	@param typeName
+//	@return interface{}
+//	@return error
+func AssertValue(value interface{}, typeName string) (interface{}, error) {
+	// 获取 value 的反射值
+	refValue := reflect.ValueOf(value)
+
+	// 根据 typeName 进行类型断言
+	switch typeName {
+	case "int":
+		if refValue.Kind() == reflect.Int {
+			return refValue.Int(), nil
+		}
+	case "int8":
+		if refValue.Kind() == reflect.Int8 {
+			return refValue.Int(), nil
+		}
+	case "int16":
+		if refValue.Kind() == reflect.Int16 {
+			return refValue.Int(), nil
+		}
+	case "int32", "rune":
+		if refValue.Kind() == reflect.Int32 {
+			return refValue.Int(), nil
+		}
+	case "int64":
+		if refValue.Kind() == reflect.Int64 {
+			return refValue.Int(), nil
+		}
+	case "uint":
+		if refValue.Kind() == reflect.Uint {
+			return refValue.Uint(), nil
+		}
+	case "uint8", "byte":
+		if refValue.Kind() == reflect.Uint8 {
+			return refValue.Uint(), nil
+		}
+	case "uint16":
+		if refValue.Kind() == reflect.Uint16 {
+			return refValue.Uint(), nil
+		}
+	case "uint32":
+		if refValue.Kind() == reflect.Uint32 {
+			return refValue.Uint(), nil
+		}
+	case "uint64":
+		if refValue.Kind() == reflect.Uint64 {
+			return refValue.Uint(), nil
+		}
+	case "float32":
+		if refValue.Kind() == reflect.Float32 {
+			return refValue.Float(), nil
+		}
+	case "float64":
+		if refValue.Kind() == reflect.Float64 {
+			return refValue.Float(), nil
+		}
+	case "string":
+		if refValue.Kind() == reflect.String {
+			return refValue.String(), nil
+		}
+	case "bool":
+		if refValue.Kind() == reflect.Bool {
+			return refValue.Bool(), nil
+		}
+	default:
+		return nil, fmt.Errorf("Unknown type: %v", typeName)
+	}
+
+	return nil, fmt.Errorf("Type assertion failed: %v", typeName)
 }
