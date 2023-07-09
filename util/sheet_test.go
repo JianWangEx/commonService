@@ -18,39 +18,39 @@ type testSheet struct {
 
 func (s testSheet) GetFieldVerificationMapping() map[string][]string {
 	return map[string][]string{
-		"StartTime": []string{"year", "month", "day", "hour", "minute", "second"},
+		"StartTime": []string{"year_int", "month_int", "day_int", "hour_int", "minute_int", "second_int"},
 	}
 }
 
 func (s testSheet) GetCombinedFieldsCalculateFunction() map[string]CalculateFunction {
 	return map[string]CalculateFunction{
-		"StartTime": func(paramsMapping map[string]interface{}) error {
+		"StartTime": func(paramsMapping map[string]interface{}) (interface{}, error) {
 			year, ok := paramsMapping["year"].(int)
 			if !ok {
-				return constant.ErrorInvalidParamType
+				return nil, constant.ErrorInvalidParamType
 			}
-			month, ok := paramsMapping["month"].(time.Month)
+			month, ok := paramsMapping["month"].(int)
 			if !ok {
-				return constant.ErrorInvalidParamType
+				return nil, constant.ErrorInvalidParamType
 			}
 			day, ok := paramsMapping["day"].(int)
 			if !ok {
-				return constant.ErrorInvalidParamType
+				return nil, constant.ErrorInvalidParamType
 			}
 			hour, ok := paramsMapping["hour"].(int)
 			if !ok {
-				return constant.ErrorInvalidParamType
+				return nil, constant.ErrorInvalidParamType
 			}
 			minute, ok := paramsMapping["minute"].(int)
 			if !ok {
-				return constant.ErrorInvalidParamType
+				return nil, constant.ErrorInvalidParamType
 			}
 			second, ok := paramsMapping["second"].(int)
 			if !ok {
-				return constant.ErrorInvalidParamType
+				return nil, constant.ErrorInvalidParamType
 			}
-			s.StartTime = time.Date(year, month, day, hour, minute, second, 0, time.Local).UnixMilli()
-			return nil
+			res := time.Date(year, time.Month(month), day, hour, minute, second, 0, time.Local).UnixMilli()
+			return res, nil
 		},
 	}
 }

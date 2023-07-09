@@ -14,7 +14,7 @@ type XLSLSheetConfig struct {
 	SheetName string
 }
 
-type CalculateFunction func(paramsMapping map[string]interface{}) error
+type CalculateFunction func(paramsMapping map[string]interface{}) (interface{}, error)
 
 type SheetHandler interface {
 	GetFieldVerificationMapping() map[string][]string
@@ -48,7 +48,7 @@ func ParseXLSLSheet(config *XLSLSheetConfig, receiver interface{}) error {
 
 	rv := reflect.ValueOf(receiver)
 	receiverSliceValue := rv.Elem()
-	entityValue := reflect.New(receiverSliceValue.Type().Elem())
+	entityValue := reflect.New(receiverSliceValue.Type().Elem()).Elem()
 
 	// 检查属性行
 	rowValueIndexMapping, fieldColumnsMapping, err := preCheck(rows[0], entityValue)
@@ -57,16 +57,14 @@ func ParseXLSLSheet(config *XLSLSheetConfig, receiver interface{}) error {
 	}
 
 	// 将每一行数据写入receiverSliceValue
-	for _, row := range rows {
-		newValue, err := writeData(rowValueIndexMapping, row, entityValue.Type(), fieldColumnsMapping)
+	for i := 1; i < len(rows); i++ {
+		newValue, err := writeData(rowValueIndexMapping, rows[i], entityValue.Type(), fieldColumnsMapping)
 		if err != nil {
 			return err
 		}
 		receiverSliceValue = reflect.Append(receiverSliceValue, newValue)
 	}
-	rv.Set(receiverSliceValue)
-
-	reflect.ValueOf(receiver).Elem().Set(receiverSliceValue)
+	rv.Elem().Set(receiverSliceValue)
 	return nil
 }
 
@@ -74,7 +72,7 @@ func preCheck(columns []string, value reflect.Value) (map[string]int, map[string
 	// step1. 生成sheet表列名->下标值映射
 	rowValueIndexMapping := make(map[string]int, len(columns))
 	for i, row := range columns {
-		if _, ok := rowValueIndexMapping[row]; !ok {
+		if _, ok := rowValueIndexMapping[row]; ok {
 			return nil, nil, constant.ErrorSheetAttributeRepeat
 		}
 		rowValueIndexMapping[row] = i
@@ -96,7 +94,8 @@ func preCheck(columns []string, value reflect.Value) (map[string]int, map[string
 		if _, ok := rowValueIndexMapping[fieldName]; !ok {
 			if cs, ok := fieldColumnsMapping[fieldName]; ok {
 				for _, c := range cs {
-					if _, ok := rowValueIndexMapping[c]; !ok {
+					vName, _ := getColumnValueAndType(c)
+					if _, ok := rowValueIndexMapping[vName]; !ok {
 						return nil, nil, constant.ErrorDataStructNotMatch
 					}
 				}
@@ -150,7 +149,7 @@ func writeData(rowValueIndexMapping map[string]int, data []string, t reflect.Typ
 				if ri, ok := rowValueIndexMapping[fName]; !ok {
 					return reflect.Value{}, constant.ErrorDataStructNotMatch
 				} else {
-					rowValue, err := AssertValue(data[ri], fType)
+					rowValue, err := convertStringToBasicDataType(data[ri], fType)
 					if err != nil {
 						return reflect.Value{}, err
 					}
@@ -158,14 +157,19 @@ func writeData(rowValueIndexMapping map[string]int, data []string, t reflect.Typ
 				}
 			}
 			fn := fieldFunctionMapping[t.Field(i).Name]
-			err := fn(columnValueMapping)
+			val, err := fn(columnValueMapping)
 			if err != nil {
 				return reflect.Value{}, err
 			}
+			fieldValue, err := getSpecifiedTypeValue(val, res.Field(i).Type())
+			if err != nil {
+				return reflect.Value{}, err
+			}
+			res.Field(i).Set(fieldValue)
 			continue
 		}
 		v := data[rowIndex]
-		fieldValue := reflect.New(res.Field(i).Type())
+		fieldValue := reflect.New(res.Field(i).Type()).Elem()
 		switch fieldValue.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			tem, err := strconv.ParseInt(v, 10, 64)
@@ -204,4 +208,47 @@ func writeData(rowValueIndexMapping map[string]int, data []string, t reflect.Typ
 func getColumnValueAndType(s string) (string, string) {
 	sArr := strings.Split(s, "_")
 	return sArr[0], sArr[1]
+}
+
+func getSpecifiedTypeValue(val interface{}, t reflect.Type) (reflect.Value, error) {
+	res := reflect.New(t).Elem()
+	switch t.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		v, ok := val.(int64)
+		if !ok {
+			return reflect.Value{}, constant.ErrorStructDataTypeNotSupported
+		}
+		res.SetInt(v)
+		return res, nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		v, ok := val.(uint64)
+		if !ok {
+			return reflect.Value{}, constant.ErrorStructDataTypeNotSupported
+		}
+		res.SetUint(v)
+		return res, nil
+	case reflect.String:
+		v, ok := val.(string)
+		if !ok {
+			return reflect.Value{}, constant.ErrorStructDataTypeNotSupported
+		}
+		res.SetString(v)
+		return res, nil
+	case reflect.Bool:
+		v, ok := val.(bool)
+		if !ok {
+			return reflect.Value{}, constant.ErrorStructDataTypeNotSupported
+		}
+		res.SetBool(v)
+		return res, nil
+	case reflect.Float32, reflect.Float64:
+		v, ok := val.(float64)
+		if !ok {
+			return reflect.Value{}, constant.ErrorStructDataTypeNotSupported
+		}
+		res.SetFloat(v)
+		return res, nil
+	default:
+		return reflect.Value{}, constant.ErrorStructDataTypeNotSupported
+	}
 }
