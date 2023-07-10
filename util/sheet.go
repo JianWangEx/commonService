@@ -254,7 +254,7 @@ func getSpecifiedTypeValue(val interface{}, t reflect.Type) (reflect.Value, erro
 	}
 }
 
-func getFieldJointNameTypeByUnderline(field interface{}, fieldName string) string {
+func GetFieldJointNameTypeByUnderline(field interface{}, fieldName string) string {
 	t := reflect.TypeOf(field)
 	tName := t.Name()
 	return fmt.Sprintf("%s_%s", fieldName, tName)
