@@ -2,6 +2,7 @@
 package util
 
 import (
+	"fmt"
 	"github.com/JianWangEx/commonService/constant"
 	"github.com/xuri/excelize/v2"
 	"reflect"
@@ -251,4 +252,10 @@ func getSpecifiedTypeValue(val interface{}, t reflect.Type) (reflect.Value, erro
 	default:
 		return reflect.Value{}, constant.ErrorStructDataTypeNotSupported
 	}
+}
+
+func getFieldJointNameTypeByUnderline(field interface{}, fieldName string) string {
+	t := reflect.TypeOf(field)
+	tName := t.Name()
+	return fmt.Sprintf("%s_%s", fieldName, tName)
 }
