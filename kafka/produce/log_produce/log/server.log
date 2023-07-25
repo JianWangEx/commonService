@@ -1,0 +1,1 @@
+2023-07-23 23:45:31.416208+08:00|INFO|log_produce/log_producer.go:29|-|[log_producer]SendSaramaMessage|sending message success, message: {kafka_test  kafka_test_message}, partition: 0, offset: 0
