@@ -16,8 +16,6 @@ var (
 	// kafkaConfig
 	config *kafkaConfig
 
-	// kafka producer cluster name to KafkaCluster map
-	kafkaProducerClusterMap = make(map[string]Sarama)
 	// kafka consumer cluster name to KafkaCluster map
 	kafkaConsumerClusterMap = make(map[string]Sarama)
 
@@ -95,11 +93,6 @@ func initKafkaClusterConfigByToml(path string) error {
 		consumerTopicToClusterMap[tc.Topic] = tc.ClusterName
 	}
 
-	// init kafkaProducerClusterMap
-	for _, c := range config.ProducerCluster {
-		kafkaProducerClusterMap[c.Name] = c.Sarama
-	}
-
 	// init kafkaConsumerClusterMap
 	for _, c := range config.ConsumerCluster {
 		kafkaConsumerClusterMap[c.Name] = c.Sarama
@@ -137,8 +130,4 @@ func GetConsumerTopicToClusterMap() map[string]string {
 
 func GetKafkaConsumerClusterMap() map[string]Sarama {
 	return kafkaConsumerClusterMap
-}
-
-func GetKafkaProducerClusterMap() map[string]Sarama {
-	return kafkaProducerClusterMap
 }

@@ -22,8 +22,8 @@ func TestProduce(t *testing.T) {
 	}
 
 	message := &produce.KafkaMessage{
-		Topic: "kafka_test",
-		Value: "kafka_test_message",
+		Topic:       "kafka_test",
+		MessageBody: "kafka_test_message",
 	}
 
 	err = GetLogProducer().SendSaramaMessage(context.TODO(), message)
