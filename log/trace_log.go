@@ -57,3 +57,10 @@ func CtxLogger(ctx context.Context) *zap.Logger {
 func CtxSugar(ctx context.Context) *zap.SugaredLogger {
 	return GetTraceLogFromCtx(ctx).Sugar()
 }
+
+func NewTraceIdLog(traceId string) context.Context {
+	ctx := context.WithValue(context.TODO(), contextKeyForTraceId, traceId)
+	newLogger := GetLogger().With(zap.String(zap_extension.TraceKey, traceId))
+	ctx = ctxzap.ToContext(ctx, newLogger)
+	return ctx
+}

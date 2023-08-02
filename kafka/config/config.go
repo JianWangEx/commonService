@@ -4,7 +4,6 @@ package config
 import (
 	"errors"
 	"github.com/BurntSushi/toml"
-	logger "github.com/JianWangEx/commonService/log"
 	"github.com/Shopify/sarama"
 	"strings"
 	"sync"
@@ -14,8 +13,31 @@ var (
 	once               sync.Once
 	defaultKafkaConfig *sarama.Config
 
-	kafkaClusterConfigMap = make(map[string]KafkaCluster)
+	// kafkaConfig
+	config *kafkaConfig
+
+	// kafka producer cluster name to KafkaCluster map
+	kafkaProducerClusterMap = make(map[string]Sarama)
+	// kafka consumer cluster name to KafkaCluster map
+	kafkaConsumerClusterMap = make(map[string]Sarama)
+
+	// kafka producer topic to cluster name map
+	producerTopicToClusterMap = make(map[string]string)
+	// kafka consumer topic to cluster name map
+	consumerTopicToClusterMap = make(map[string]string)
 )
+
+type kafkaConfig struct {
+	Sarama Sarama // default config
+
+	ProducerCluster []KafkaCluster
+	ConsumerCluster []KafkaCluster
+
+	ProducerTopics []TopicCluster
+	ConsumerTopics []TopicCluster
+
+	Consumers []Consumer
+}
 
 type Sarama struct {
 	Brokers  []string
@@ -28,8 +50,21 @@ type KafkaCluster struct {
 	Sarama
 }
 
-type Clusters struct {
-	KafkaCluster []KafkaCluster `json:"kafkaCluster"`
+type Consumer struct {
+	Topic string
+	// group level for kafka, enum
+	GroupLevel string
+	// when need retry with different time internal, use this when failed to reconsume message
+	DelayTime []uint32
+	// the count for retry times
+	RetryTimes uint32
+	// the number of concurrent consumption
+	ConcurrentNums uint32
+}
+
+type TopicCluster struct {
+	Topic       string
+	ClusterName string
 }
 
 func InitKafkaConfig() {
@@ -45,26 +80,36 @@ func GetDefaultKafkaConfig() *sarama.Config {
 }
 
 func initKafkaClusterConfigByToml(path string) error {
-	clusters := &Clusters{}
-	_, err := toml.DecodeFile(path, clusters)
+	_, err := toml.DecodeFile(path, config)
 	if err != nil {
 		return err
 	}
 
-	// 初始化kafkaClusterConfigMap
-	for _, c := range clusters.KafkaCluster {
-		_, ok := kafkaClusterConfigMap[c.Name]
-		if !ok {
-			kafkaClusterConfigMap[c.Name] = c
-			continue
-		}
-		logger.GetLogger().Sugar().Warnf("[InitKafkaClusterConfigByToml]duplicate kafka cluster configuration|config path: %s, clusterName: %s", path, c.Name)
+	// init producerTopicToClusterMap
+	for _, tc := range config.ProducerTopics {
+		producerTopicToClusterMap[tc.Topic] = tc.ClusterName
 	}
+
+	// init consumerTopicToClusterMap
+	for _, tc := range config.ConsumerTopics {
+		consumerTopicToClusterMap[tc.Topic] = tc.ClusterName
+	}
+
+	// init kafkaProducerClusterMap
+	for _, c := range config.ProducerCluster {
+		kafkaProducerClusterMap[c.Name] = c.Sarama
+	}
+
+	// init kafkaConsumerClusterMap
+	for _, c := range config.ConsumerCluster {
+		kafkaConsumerClusterMap[c.Name] = c.Sarama
+	}
+
 	return nil
 }
 
 func InitKafkaClusterConfig(path string) error {
-	if len(kafkaClusterConfigMap) > 0 {
+	if config != nil {
 		return nil
 	}
 	s := strings.Split(path, ".")
@@ -78,6 +123,22 @@ func InitKafkaClusterConfig(path string) error {
 	}
 }
 
-func GetKafkaClusterConfigMap() map[string]KafkaCluster {
-	return kafkaClusterConfigMap
+func Kafka() kafkaConfig {
+	return *config
+}
+
+func GetProducerTopicToClusterMap() map[string]string {
+	return producerTopicToClusterMap
+}
+
+func GetConsumerTopicToClusterMap() map[string]string {
+	return consumerTopicToClusterMap
+}
+
+func GetKafkaConsumerClusterMap() map[string]Sarama {
+	return kafkaConsumerClusterMap
+}
+
+func GetKafkaProducerClusterMap() map[string]Sarama {
+	return kafkaProducerClusterMap
 }

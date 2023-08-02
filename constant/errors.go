@@ -27,3 +27,8 @@ var (
 	ErrorInvalidParamType           = errors.New("invalid param type")
 	ErrorInterfaceMethodNotFound    = errors.New("interface method not found")
 )
+
+var (
+	KafkaErrorGroupEmpty   = errors.New("kafka group is empty")
+	KafkaErrorClientNilErr = errors.New("producer client is nil")
+)

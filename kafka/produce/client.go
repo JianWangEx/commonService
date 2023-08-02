@@ -3,8 +3,13 @@ package produce
 
 import (
 	"context"
+	"github.com/Shopify/sarama"
 )
 
 type Client interface {
-	SendSaramaMessage(ctx context.Context, message *KafkaMessage) error
+	SendSaramaMessage(ctx context.Context, message *sarama.ProducerMessage) error
+}
+
+func GetClient() Client {
+	return sendManager
 }
