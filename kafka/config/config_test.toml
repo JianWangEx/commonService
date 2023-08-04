@@ -1,5 +1,31 @@
-[[KafkaCluster]]
+[Sarama]
+Brokers = ["127.0.0.1:9092"]
+UserName = "test"
+Password = "123456"
+
+[[ProducerCluster]]
 Name = "log"
 Brokers = ["127.0.0.1:9092"]
 UserName = "test"
 Password = "123456"
+
+[[ConsumerCluster]]
+Name = "log"
+Brokers = ["127.0.0.1:9092"]
+UserName = "test"
+Password = "123456"
+
+[[ProducerTopics]]
+Topic = "test_log"
+ClusterName = "log"
+
+[[ConsumerTopics]]
+Topic = "test_log"
+ClusterName = "log"
+
+[[Consumers]]
+Topic = "test_log"
+GroupLevel = "none"
+ConcurrentNums = 0
+RetryTimes = 5
+DelayTime = [30, 60, 120, 300, 600]

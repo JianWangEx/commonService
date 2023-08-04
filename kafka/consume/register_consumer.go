@@ -4,6 +4,7 @@ package consume
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/JianWangEx/commonService/constant"
 	"github.com/JianWangEx/commonService/kafka/config"
 	logger "github.com/JianWangEx/commonService/log"
@@ -13,14 +14,16 @@ import (
 )
 
 var (
-	consumeFuncMap = make(map[string]KafkaConsumeFunc)
+	consumeFuncMap = make(map[string]KafkaConsumeMsgFunc)
 )
+
+type KafkaConsumeMsgFunc func(context.Context, string) error
 
 func RegisterKafkaConsumer(ctx context.Context) {
 	initConsumerFunc()
 	for _, consumer := range config.Kafka().Consumers {
 		switch strings.ToLower(strings.TrimSpace(consumer.GroupLevel)) {
-		case constant.ConsumerGroupYoga:
+		case constant.KafkaGroupYoga:
 			registerConsumer(ctx, consumer, constant.YogaGroup)
 		default:
 			registerConsumer(ctx, consumer, constant.DefaultGroup)
@@ -45,9 +48,30 @@ func registerConsumer(ctx context.Context, consumer config.Consumer, groupMap ma
 		consumerConfig.GroupId = group
 		doRegisterKafkaConsumer(ctx, *consumerConfig)
 	}
+
+	// register default consumer
+	consumerConfig.GroupId = constant.KafkaGroupDefault
+	doRegisterKafkaConsumer(ctx, *consumerConfig)
 }
 
-func initConsumerFunc() {}
+func initConsumerFunc() {
+	initConsumeFuncTopic("test_log", func(ctx context.Context, msg string) error {
+		fmt.Println(fmt.Sprintf("consume successfully, msg: %s", msg))
+		return nil
+	})
+}
+
+// initConsumeFuncTopic: init handler to consumeFuncMap
+func initConsumeFuncTopic(topic string, handler KafkaConsumeMsgFunc) {
+	consumeFuncMap[topic] = handler
+}
+
+// setDefaultDecorator do not extra processing, only convert KafkaConsumeMsgFunc to KafkaConsumeFunc
+func setDefaultDecorator(consumeFunc KafkaConsumeMsgFunc) KafkaConsumeFunc {
+	return func(ctx context.Context, msg string, headers []*sarama.RecordHeader) error {
+		return consumeFunc(ctx, msg)
+	}
+}
 
 // getRealConsumeFunc get real consumer function
 func getRealConsumeFunc(ctx context.Context, consumer config.Consumer) (KafkaConsumeFunc, bool) {
@@ -56,7 +80,7 @@ func getRealConsumeFunc(ctx context.Context, consumer config.Consumer) (KafkaCon
 		logger.CtxSugar(ctx).Warnf("[register_consumer]getRealConsumeFunc kafka consume func not found, topic=%s", consumer.Topic)
 		return nil, false
 	}
-	return f, true
+	return setDefaultDecorator(f), true
 }
 
 func doRegisterKafkaConsumer(ctx context.Context, consumerConfig ConsumerConfig) {

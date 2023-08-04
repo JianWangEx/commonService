@@ -78,6 +78,7 @@ func GetDefaultKafkaConfig() *sarama.Config {
 }
 
 func initKafkaClusterConfigByToml(path string) error {
+	config = &kafkaConfig{}
 	_, err := toml.DecodeFile(path, config)
 	if err != nil {
 		return err

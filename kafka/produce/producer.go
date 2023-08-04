@@ -30,17 +30,7 @@ type KafkaMessage struct {
 	MessageBody interface{}
 }
 
-func GetKafkaProducerMap() (map[string]sarama.SyncProducer, error) {
-	if len(kafkaProducerMap) == 0 {
-		err := clientInit()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return kafkaProducerMap, nil
-}
-
-func clientInit() error {
+func ClientInit() error {
 	var initErr error
 	// init default producer
 	defaultSarama := config.Kafka().Sarama

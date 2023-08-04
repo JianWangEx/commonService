@@ -7,8 +7,8 @@ const (
 	KafkaHeaderKeyTraceId    = "traceId"
 	KafkaHeaderKeyRetryTimes = "retryTimes"
 
-	DefaultKafkaProducerClusterName = "default_producer"
-	DefaultKafkaConsumerClusterName = "default_consumer"
+	DefaultKafkaProducerClusterName = "defaultProducer"
+	DefaultKafkaConsumerClusterName = "defaultConsumer"
 )
 
 const (
@@ -17,7 +17,8 @@ const (
 )
 
 const (
-	ConsumerGroupYoga = "yoga"
+	KafkaGroupDefault = "defaultGroup"
+	KafkaGroupYoga    = "yoga"
 )
 
 var (
