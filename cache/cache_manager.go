@@ -116,3 +116,8 @@ func getStorage(key string) Storage {
 	}
 	return storage
 }
+
+func (c *cacheManager) FlushCache(ctx context.Context) (string, error) {
+	c.localCacheClient.Cache.Flush()
+	return c.redisClient.FlushDB(ctx).Result()
+}
