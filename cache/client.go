@@ -24,4 +24,6 @@ type Client interface {
 	Add(ctx context.Context, key string, value interface{}, expired time.Duration) error
 
 	Delete(ctx context.Context, key string) error
+
+	FlushCache(ctx context.Context) (string, error)
 }
