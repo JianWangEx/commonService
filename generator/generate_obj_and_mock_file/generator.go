@@ -63,7 +63,14 @@ func NewGenerator(config Config) *Generator {
 	}
 }
 
-func (g *Generator) Generate() (err error) {
+func DefaultGenerator() {
+	err := NewGenerator(DefaultConfig).generate()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (g *Generator) generate() (err error) {
 	if g.Config.FilterKeyword == "" {
 		fmt.Fprint(os.Stdout, colorize("!!!Recommendation: Use partial model like 'make ag filter=/payment/' to make it faster.\nThe 'filter' can be any part of the path. Such as 'inbound', 'thirdparty', 'lianlian' .etc.\n", colorMagenta))
 	}
@@ -71,7 +78,7 @@ func (g *Generator) Generate() (err error) {
 	// Step 1. scans project to find packages which need to be processed, details can refer to Preprocessor.Process
 	fmt.Fprintf(os.Stdout, "%s%s: Scanning Project, PartialModel=%t, Filter=%s, ScanPkgs=%s\n",
 		timeStr(), colorize("Preprocess", colorCyan), g.Config.PartialMode(), g.Config.FilterKeyword, g.Config.ScanPkgs)
-	err = g.Preprocess()
+	err = g.preprocess()
 	if err != nil {
 		fmt.Fprint(os.Stderr, colorize(fmt.Sprintf("Error while preprocessing: %v\n", err), colorRed))
 		return
@@ -86,7 +93,7 @@ func (g *Generator) Generate() (err error) {
 	}
 	// Step 2. parses pkgs returns from step 1, collects the eligible interfaces as []InjectorInstance and constructors as []ProviderInstance
 	fmt.Fprintf(os.Stdout, "%s%s: finding the providers and injectors\n", timeStr(), colorize("Parsing Files", colorCyan))
-	err = g.Parse()
+	err = g.parse()
 	if err != nil {
 		fmt.Fprint(os.Stderr, colorize(fmt.Sprintf("Error while parsing files: %v\n", err), colorRed))
 		return
@@ -101,7 +108,7 @@ func (g *Generator) Generate() (err error) {
 	}
 	// Step 4. The real write happens here(expect mock file which happens in step 3)
 	fmt.Fprintf(os.Stdout, "%s%s: Create Injector Files and Register Files For Providers\n", timeStr(), colorize("Writing files", colorCyan))
-	err = g.Write()
+	err = g.write()
 	if err != nil {
 		fmt.Fprint(os.Stderr, colorize(fmt.Sprintf("Error while writing to file: %v\n", err), colorRed))
 		return
@@ -111,7 +118,7 @@ func (g *Generator) Generate() (err error) {
 }
 
 // Write writes contents to files
-func (g *Generator) Write() error {
+func (g *Generator) write() error {
 	// Create and write register files for provider(ioc.AddProvider...) to Config.OutputDirPathName(such as dir "internal/register")
 	providerWriter := NewProviderWriter(g.Config, g.ProviderOutputBytes)
 	err := providerWriter.Write()
@@ -140,11 +147,11 @@ func (g *Generator) Write() error {
 	if err != nil {
 		return err
 	}
-	g.WriteCheckSum()
+	g.writeCheckSum()
 	return nil
 }
 
-func (g *Generator) WriteCheckSum() {
+func (g *Generator) writeCheckSum() {
 	if !g.Config.Incremental {
 		return
 	}
@@ -215,7 +222,7 @@ func (g *Generator) FormatOutputAndGenerateMockFiles() error {
 	return nil
 }
 
-func (g *Generator) Parse() error {
+func (g *Generator) parse() error {
 	parser := NewParser(g.Config)
 	for path, name := range g.PkgPathToName {
 		if path != "" {
@@ -230,7 +237,7 @@ func (g *Generator) Parse() error {
 	return nil
 }
 
-func (g *Generator) Preprocess() error {
+func (g *Generator) preprocess() error {
 	processor := NewPreprocessor(g.Config)
 	var err error
 	g.PkgPathToName, g.PkgNameToFullPath, g.ModuleName, err = processor.Process()
