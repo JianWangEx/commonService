@@ -10,7 +10,7 @@ package {{.TypeStr}}
 
 import (
 	{{.PkgName}} "{{.PkgFullPath}}"
-	"{$register.ModuleName}/pkg/ioc"
+	"{{.ModuleName}}/pkg/ioc"
 )
 
 // nolint:funlen
