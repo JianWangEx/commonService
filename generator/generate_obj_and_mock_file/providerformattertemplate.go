@@ -32,7 +32,7 @@ package {{.TypeStr}}
 import (
 	{{.PkgName}} "{{.InterfaceFullPath}}"
 	{{.PkgName}}mock "{{.PkgFullPath}}"
-	"{$register.ModuleName}/pkg/ioc"
+	"{{.ModuleName}}/pkg/ioc"
 )
 
 // nolint:funlen

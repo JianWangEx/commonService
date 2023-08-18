@@ -9,7 +9,7 @@ const injectorFileTemplate = `
 package {{.PkgName}}
 
 import (
-	"{$injector.ModuleName}/pkg/ioc"
+	"{{.ModuleName}}/pkg/ioc"
 )
 
 {{range $injector := .Injectors}}

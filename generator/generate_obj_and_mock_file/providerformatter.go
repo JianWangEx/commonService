@@ -149,6 +149,7 @@ type FormatFileHelper struct {
 	TypeStr           string
 	PkgFullPath       string
 	PkgName           string
+	ModuleName        string
 	Registers         []ProviderInstance
 	InterfaceFullPath string // only for mock
 }
@@ -162,6 +163,7 @@ func NewFormatFileHelper(registers []ProviderInstance) *FormatFileHelper {
 	pkgFullPath := reg.PackageFullPath
 	pkgName := reg.PackageName
 	interfaceFullPath := reg.InterfaceFullPath
+	moduleName := reg.ModuleName
 
 	// sort providers by package and method name
 	sort.SliceStable(registers, func(i, j int) bool {
@@ -172,7 +174,7 @@ func NewFormatFileHelper(registers []ProviderInstance) *FormatFileHelper {
 	})
 
 	return &FormatFileHelper{TypeStr: typeStr, PkgFullPath: pkgFullPath,
-		PkgName: pkgName, Registers: registers, InterfaceFullPath: interfaceFullPath}
+		PkgName: pkgName, ModuleName: moduleName, Registers: registers, InterfaceFullPath: interfaceFullPath}
 }
 
 type IndexFileHelper struct {

@@ -204,6 +204,7 @@ type InjectorFormatFileHelper struct {
 	TypeStr     string
 	PkgFullPath string
 	PkgName     string
+	ModuleName  string
 	Injectors   []InjectorInstance
 }
 
@@ -215,6 +216,7 @@ func NewInjectorFormatFileHelper(injectors []InjectorInstance) *InjectorFormatFi
 	typeStr := reg.Category
 	pkgFullPath := reg.PackageFullPath
 	pkgName := reg.PackageName
+	moduleName := reg.ModuleName
 
 	// sort providers by package and method name
 	sort.SliceStable(injectors, func(i, j int) bool {
@@ -224,5 +226,5 @@ func NewInjectorFormatFileHelper(injectors []InjectorInstance) *InjectorFormatFi
 		return injectors[i].PackageName < injectors[j].PackageName
 	})
 	return &InjectorFormatFileHelper{TypeStr: typeStr, PkgFullPath: pkgFullPath,
-		PkgName: pkgName, Injectors: injectors}
+		PkgName: pkgName, ModuleName: moduleName, Injectors: injectors}
 }
