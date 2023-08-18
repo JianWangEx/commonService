@@ -15,7 +15,7 @@ type ModelOutputFormatter struct {
 	ModelPackagePath   string   // model文件包路径
 	NeedImportPkgPaths []string // 需要导入的包路径
 	TableNames         []string
-	TablesColumns      map[string][]TableColumn
+	TablesColumns      map[string][]*TableColumn
 	OutputBytes        map[string][]byte
 }
 
@@ -44,7 +44,7 @@ func NewFormatFileHelpers(mf *ModelOutputFormatter) []ModelFormatFileHelper {
 	for _, tableName := range mf.TableNames {
 		var builder strings.Builder
 		for _, column := range mf.TablesColumns[tableName] {
-			columnDefinition := GetColumnDefinition(column)
+			columnDefinition := GetColumnDefinition(*column)
 			builder.WriteString(columnDefinition)
 			builder.WriteString("\n")
 		}

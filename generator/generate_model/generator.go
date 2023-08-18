@@ -17,11 +17,12 @@ type TableColumn struct {
 type Config struct {
 	*DBConfig
 	ModuleName         string
-	ModelPackagePath   string   // model文件包路径
-	DaoPackagePath     string   // dao文件包路径
-	DaoImplPackagePath string   // dao层impl文件路径
-	FileNames          []string // 文件名
-	NeedImportPkgPaths []string // 需要导入的包路径
+	ModelPackagePath   string            // model文件包路径
+	DaoPackagePath     string            // dao文件包路径
+	DaoImplPackagePath string            // dao层impl文件路径
+	FileNames          []string          // 文件名
+	NeedImportPkgPaths []string          // 需要导入的包路径
+	FieldTypeMap       map[string]string // 定制化字段类型，字段名到类型映射，例如可实现tinyint->bool
 }
 
 func (c *Config) Generate() error {
@@ -57,7 +58,7 @@ func (c *Config) Generate() error {
 	return nil
 }
 
-func (c *Config) GetDBTablesAndColumns() (map[string][]TableColumn, error) {
+func (c *Config) GetDBTablesAndColumns() (map[string][]*TableColumn, error) {
 	// 连接数据库
 	db, err := connectDB(c.DBConfig)
 	if err != nil {
@@ -65,11 +66,17 @@ func (c *Config) GetDBTablesAndColumns() (map[string][]TableColumn, error) {
 	}
 
 	// 获取每一张表的所有列信息
-	var tablesColumns = make(map[string][]TableColumn, len(c.TableNames))
+	var tablesColumns = make(map[string][]*TableColumn, len(c.TableNames))
 	for _, t := range c.TableNames {
-		var columns []TableColumn
+		var columns []*TableColumn
 		db.Raw("SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, COLUMN_KEY FROM columns WHERE table_schema=? AND table_name=? ORDER BY ORDINAL_POSITION", c.DBName,
 			t).Scan(&columns)
+		// 更新字段类型
+		for _, col := range columns {
+			if val, ok := c.FieldTypeMap[col.ColumnName]; ok {
+				col.DataType = val
+			}
+		}
 		tablesColumns[t] = columns
 	}
 	return tablesColumns, nil
