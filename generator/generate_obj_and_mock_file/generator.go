@@ -63,7 +63,10 @@ func NewGenerator(config Config) *Generator {
 	}
 }
 
-func DefaultGenerator() {
+func DefaultGenerator(incremental bool, filter string) {
+	defaultConfig := DefaultConfig
+	defaultConfig.Incremental = incremental
+	defaultConfig.FilterKeyword = filter
 	err := NewGenerator(DefaultConfig).generate()
 	if err != nil {
 		panic(err)
