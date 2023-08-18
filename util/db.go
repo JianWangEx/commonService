@@ -25,6 +25,6 @@ func ConvertDBTypeToGolang(t string) string {
 	case "date", "datetime", "timestamp":
 		return "time.Time"
 	default:
-		return ""
+		return t
 	}
 }
