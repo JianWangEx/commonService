@@ -30,10 +30,11 @@ func NewParser(config Config) *Parser {
 //
 //	The information of found providers and injectors will be hold by the struct ProviderInstance and InjectorInstance
 //	[Params Example]
+//	moduleName: github.com/JianWangEx/commonService
 //	packagePath: "./fixtures/spn/handler/impl"
 //	packageName: "handlerimpl"
 //	fullPath: "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/spn/handler/impl"
-func (p *Parser) Parse(packagePath, packageName, fullPath string) error {
+func (p *Parser) Parse(moduleName, packagePath, packageName, fullPath string) error {
 	fset := token.NewFileSet()
 	pkgs, err := parser.ParseDir(fset, packagePath, nil, parser.ParseComments)
 	if err != nil {
@@ -46,13 +47,13 @@ func (p *Parser) Parse(packagePath, packageName, fullPath string) error {
 			ast.Inspect(file, func(x ast.Node) bool {
 				fn, ok := x.(*ast.FuncDecl)
 				if ok {
-					_ = p.findRegisterKeywordInComment(packageName, fileName, fullPath, fn)
+					_ = p.findRegisterKeywordInComment(moduleName, packageName, fileName, fullPath, fn)
 					// Move on to the next sibling node
 					return false
 				}
 				iface, ok := x.(*ast.GenDecl)
 				if ok {
-					_ = p.findInvokerKeywordInComment(fileName, fullPath, iface)
+					_ = p.findInvokerKeywordInComment(moduleName, fileName, fullPath, iface)
 					// Move on to the next sibling node
 					return false
 				}
@@ -64,7 +65,7 @@ func (p *Parser) Parse(packagePath, packageName, fullPath string) error {
 	return nil
 }
 
-func (p *Parser) findInvokerKeywordInComment(fileName, fullPath string, iface *ast.GenDecl) error {
+func (p *Parser) findInvokerKeywordInComment(moduleName, fileName, fullPath string, iface *ast.GenDecl) error {
 	// Register function must have at least one line of comment
 	// It must be exported and interface definition
 	if iface.Doc == nil || len(iface.Doc.List) == 0 || len(iface.Specs) != 1 {
@@ -97,6 +98,7 @@ func (p *Parser) findInvokerKeywordInComment(fileName, fullPath string, iface *a
 		fileNameStr := p.getFileNameStr(fileName)
 		objName := strings.ToLower(ifaceName[0:1]) + ifaceName[1:] + "Obj"
 		instance := InjectorInstance{
+			ModuleName:       moduleName,
 			Category:         injectorCategory,
 			PackageName:      packageName,
 			PackageFullPath:  fullPath,
@@ -134,7 +136,7 @@ func (p *Parser) GetPackageNameFromFile(fileName string) (string, error) {
 	return packageName, nil
 }
 
-func (p *Parser) findRegisterKeywordInComment(packageName, fileName, fullPath string, fn *ast.FuncDecl) error {
+func (p *Parser) findRegisterKeywordInComment(moduleName, packageName, fileName, fullPath string, fn *ast.FuncDecl) error {
 	// Register function must have at least one line of comment
 	// It has no function receiver, and must be exported
 	if fn.Doc == nil || len(fn.Doc.List) == 0 || fn.Recv != nil ||
@@ -149,6 +151,7 @@ func (p *Parser) findRegisterKeywordInComment(packageName, fileName, fullPath st
 		}
 		fileNameStr := p.getFileNameStr(fileName)
 		instance := ProviderInstance{
+			ModuleName:       moduleName,
 			Category:         providerCategory,
 			PackageName:      packageName,
 			PackageFullPath:  fullPath,

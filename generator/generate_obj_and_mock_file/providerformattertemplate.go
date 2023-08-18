@@ -10,7 +10,7 @@ package {{.TypeStr}}
 
 import (
 	{{.PkgName}} "{{.PkgFullPath}}"
-	"github.com/JianWangEx/commonService/pkg/ioc"
+	"{$register.ModuleName}/pkg/ioc"
 )
 
 // nolint:funlen
@@ -32,7 +32,7 @@ package {{.TypeStr}}
 import (
 	{{.PkgName}} "{{.InterfaceFullPath}}"
 	{{.PkgName}}mock "{{.PkgFullPath}}"
-	"github.com/JianWangEx/commonService/pkg/ioc"
+	"{$register.ModuleName}/pkg/ioc"
 )
 
 // nolint:funlen

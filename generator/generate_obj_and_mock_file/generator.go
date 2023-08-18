@@ -12,6 +12,7 @@ import (
 //
 //	Can refer to TestParser_Parse as an example
 type ProviderInstance struct {
+	ModuleName        string // Example: github.com/JianWangEx/commonService
 	Category          string // one of the pkg names of config.ScanPkgs, such as "dao", "business"
 	PackageName       string // distinct pkg name, like "handlerimpl"
 	PackageFullPath   string // like "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/spn/handler/impl"
@@ -26,6 +27,7 @@ type ProviderInstance struct {
 //
 //	Can refer to TestParser_Parse as an example
 type InjectorInstance struct {
+	ModuleName       string // Example: github.com/JianWangEx/commonService
 	Category         string // one of the pkg names of config.ScanPkgs, such as "dao", "service"
 	PackageName      string // distinct pgk name, like "handler", "daocourse"
 	PackageFullPath  string // like "github.com/JianWangEx/commonService/internal/data/dao"
@@ -217,7 +219,7 @@ func (g *Generator) Parse() error {
 	parser := NewParser(g.Config)
 	for path, name := range g.PkgPathToName {
 		if path != "" {
-			err := parser.Parse(path, name, g.PkgNameToFullPath[name])
+			err := parser.Parse(g.ModuleName, path, name, g.PkgNameToFullPath[name])
 			if err != nil {
 				return err
 			}

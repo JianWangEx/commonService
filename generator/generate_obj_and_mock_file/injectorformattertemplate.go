@@ -9,7 +9,7 @@ const injectorFileTemplate = `
 package {{.PkgName}}
 
 import (
-	"github.com/JianWangEx/commonService/pkg/ioc"
+	"{$injector.ModuleName}/pkg/ioc"
 )
 
 {{range $injector := .Injectors}}
