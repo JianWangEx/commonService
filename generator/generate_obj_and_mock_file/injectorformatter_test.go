@@ -9,6 +9,7 @@ import (
 
 func TestInjectorOutputFormatter_Format_And_MockInterface(t *testing.T) {
 	injector1 := InjectorInstance{
+		ModuleName:       "github.com/JianWangEx/commonService",
 		Category:         "spn",
 		PackageName:      "handler",
 		PackageFullPath:  "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/spn/handler",
@@ -18,6 +19,7 @@ func TestInjectorOutputFormatter_Format_And_MockInterface(t *testing.T) {
 		ObjName:          "spnHandlerObj",
 	}
 	injector2 := InjectorInstance{
+		ModuleName:       "github.com/JianWangEx/commonService",
 		Category:         "game",
 		PackageName:      "manager",
 		PackageFullPath:  "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/game/manager",

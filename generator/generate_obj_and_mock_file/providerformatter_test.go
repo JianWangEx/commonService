@@ -9,6 +9,7 @@ import (
 func TestProviderOutputFormatter_Format_RealImplementationProvider(t *testing.T) {
 	// means not provider for mock implementation
 	provider1 := ProviderInstance{
+		ModuleName:        "github.com/JianWangEx/commonService",
 		Category:          "spn",
 		PackageName:       "handlerimpl",
 		PackageFullPath:   "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/spn/handler/impl",
@@ -19,6 +20,7 @@ func TestProviderOutputFormatter_Format_RealImplementationProvider(t *testing.T)
 		InterfaceName:     "",
 	}
 	provider2 := ProviderInstance{
+		ModuleName:        "github.com/JianWangEx/commonService",
 		Category:          "game",
 		PackageName:       "managerimpl",
 		PackageFullPath:   "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/game/manager/impl",
@@ -80,6 +82,7 @@ func init() {
 func TestProviderOutputFormatter_Format_MockProvider(t *testing.T) {
 	// the content for mock providers
 	provider1 := ProviderInstance{
+		ModuleName:        "github.com/JianWangEx/commonService",
 		Category:          "spn",
 		PackageName:       "handler",
 		PackageFullPath:   "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/spn/handler/mock",
@@ -90,6 +93,7 @@ func TestProviderOutputFormatter_Format_MockProvider(t *testing.T) {
 		InterfaceName:     "SpnHandler",
 	}
 	provider2 := ProviderInstance{
+		ModuleName:        "github.com/JianWangEx/commonService",
 		Category:          "game",
 		PackageName:       "manager",
 		PackageFullPath:   "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/game/manager/mock",

@@ -120,10 +120,15 @@ func (p *Parser) GetPackageNameFromFile(fileName string) (string, error) {
 	}
 
 	scanner := bufio.NewScanner(file)
-	scanner.Scan()
-	replacer := strings.NewReplacer("package ", "")
-	line := scanner.Text()
-	packageName := replacer.Replace(line)
+	packageName := ""
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "package ") {
+			// 找到包名的声明
+			packageName = strings.TrimPrefix(line, "package ")
+			break
+		}
+	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)

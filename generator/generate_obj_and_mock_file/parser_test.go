@@ -20,7 +20,7 @@ func TestParser_Parse(t *testing.T) {
 		"handlerimpl": "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/spn/handler/impl",
 	}
 	for path, name := range pkgPathToName {
-		err := parser.Parse(path, name, pkgNameToFullPath[name])
+		err := parser.Parse("github.com/JianWangEx/commonService", path, name, pkgNameToFullPath[name])
 		assert.NoErrorf(t, err, "should not have error when parse:%s, %s", path, name)
 	}
 	injectors := parser.injectors
@@ -28,6 +28,7 @@ func TestParser_Parse(t *testing.T) {
 	require.Equal(t, 1, len(injectors), "one injector")
 	require.Equal(t, 1, len(providers), "one provider")
 	expectedInjector := InjectorInstance{
+		ModuleName:       "github.com/JianWangEx/commonService",
 		Category:         "spn",
 		PackageName:      "handler",
 		PackageFullPath:  "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/spn/handler",
@@ -37,6 +38,7 @@ func TestParser_Parse(t *testing.T) {
 		ObjName:          "spnHandlerObj",
 	}
 	expectedProvider := ProviderInstance{
+		ModuleName:        "github.com/JianWangEx/commonService",
 		Category:          "spn",
 		PackageName:       "handlerimpl",
 		PackageFullPath:   "github.com/JianWangEx/commonService/generator/generate_obj_and_mock_file/fixtures/spn/handler/impl",
@@ -60,15 +62,15 @@ func TestParser_getCategory(t *testing.T) {
 		msg        string
 	}{
 		{
-			commentStr: "// @Injector()", fileName: "tool/autogenerator/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfInjector,
+			commentStr: "// @Injector()", fileName: "generator/generate_obj_and_mock_file/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfInjector,
 			want: "spn", msg: "the very normal one for injector, should be the last fragment of the matched scan pkg with file name",
 		},
 		{
-			commentStr: "// more before @Injector() more after", fileName: "tool/autogenerator/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfInjector,
+			commentStr: "// more before @Injector() more after", fileName: "generator/generate_obj_and_mock_file/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfInjector,
 			want: "spn", msg: "should contain any additional comments",
 		},
 		{
-			commentStr: "// @Injector()", fileName: "/tool/autogenerator/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfInjector,
+			commentStr: "// @Injector()", fileName: "/generator/generate_obj_and_mock_file/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfInjector,
 			want: "", msg: "cannot support '/' at the first",
 		},
 		{
@@ -80,11 +82,11 @@ func TestParser_getCategory(t *testing.T) {
 			want: "", msg: "must have () after @Injector)",
 		},
 		{
-			commentStr: "//@Provider()", fileName: "tool/autogenerator/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfProvider,
+			commentStr: "//@Provider()", fileName: "generator/generate_obj_and_mock_file/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfProvider,
 			want: "spn", msg: "the very normal one for provider, should be the last fragment of the matched scan pkg with file name",
 		},
 		{
-			commentStr: "// @Provider()", fileName: "/tool/autogenerator/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfProvider,
+			commentStr: "// @Provider()", fileName: "/generator/generate_obj_and_mock_file/fixtures/spn/handler/spn_handler.go", identifier: DefaultConfig.IdentifierOfProvider,
 			want: "", msg: "cannot support '/' at the first",
 		},
 	}
