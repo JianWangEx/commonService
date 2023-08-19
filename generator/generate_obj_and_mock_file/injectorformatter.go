@@ -98,6 +98,7 @@ func (f *InjectorOutputFormatter) MockInterface() ([]ProviderInstance, error) {
 		mockeryCmd := fmt.Sprintf(mockeryTemplate, name, structName, fileName, dir, output, outpkg)
 		mockeryCmdList = append(mockeryCmdList, mockeryCmd)
 		instance := ProviderInstance{
+			ModuleName:        f.ModuleName,
 			Category:          injector.Category,
 			PackageName:       injector.PackageName,
 			PackageFullPath:   injector.PackageFullPath + "/mock",
