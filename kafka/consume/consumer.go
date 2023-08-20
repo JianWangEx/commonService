@@ -87,7 +87,7 @@ func (c *DataSyncConsumer) ConsumeClaim(sess sarama.ConsumerGroupSession, claim 
 		// check the group for msg
 		group := getStrFromMsgHeader(msg, constant.KafkaHeaderKeyGroup)
 		if group != "" && !strings.HasPrefix(c.GroupId, group) {
-			// if no msg is being consumed, the offset is submitted directly
+			// if no msg is being consumed, the offset is submitted to Kafka directly, indicates that the message has been successfully consumed
 			if len(c.chanMap[msg.Partition]) == 0 {
 				sess.MarkMessage(msg, "")
 			}
@@ -118,6 +118,7 @@ func (c *DataSyncConsumer) beforeConsume(message *sarama.ConsumerMessage) {
 		partitionInfo.consumingMap[message.Offset] = message
 		// ensure atomic update, avoid data race issues that can occur when multiple goroutines are accessed concurrently
 		atomic.StoreInt64(&partitionInfo.maxOffset, message.Offset)
+		// if only one message is being processed for the partition, or minOffset=0, update the minOffset
 		if len(c.chanMap[message.Partition]) == 1 || partitionInfo.minOffset == 0 {
 			atomic.StoreInt64(&partitionInfo.minOffset, message.Offset)
 		}
@@ -233,6 +234,8 @@ func (c *DataSyncConsumer) commitOffset(ctx context.Context, sess sarama.Consume
 		return
 	}
 	onceLog.Infof("minOffset: %+v, currentOffset: %+v, topic: %+v, partition: %+v, consume group: %+v", partitionInfo.minOffset, msg.Offset, msg.Topic, msg.Partition, c.GroupId)
+	// it ensures that the consumer does not fall behind the minimum offset of the partition when consuming, thus avoiding repeated consumption.
+	// keep your messages consistent and accurate. avoid duplication or loss of messages
 	if partitionInfo.minOffset > msg.Offset {
 		// update the offset(the next offset of the processed message) of this consumer group in this partition
 		sess.MarkOffset(msg.Topic, msg.Partition, partitionInfo.minOffset, "")

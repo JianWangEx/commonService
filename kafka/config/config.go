@@ -28,17 +28,17 @@ var (
 type kafkaConfig struct {
 	Sarama Sarama // default config
 
-	ProducerCluster []KafkaCluster
-	ConsumerCluster []KafkaCluster
+	ProducerCluster []KafkaCluster // producer cluster name to the cluster address mapping
+	ConsumerCluster []KafkaCluster // consumer cluster name to the cluster address mapping
 
-	ProducerTopics []TopicCluster
-	ConsumerTopics []TopicCluster
+	ProducerTopics []TopicCluster // producer topic name to the cluster name mapping, it points out that it's produced by some producer cluster
+	ConsumerTopics []TopicCluster // consumer topic name to the cluster name mapping, it points out that it's consumed by some consumer cluster
 
-	Consumers []Consumer
+	Consumers []Consumer // consumer config, it points out that the specified consumer config includes the topic, delay time and so on.
 }
 
 type Sarama struct {
-	Brokers  []string
+	Brokers  []string // kafka brokers addresses
 	UserName string
 	Password string
 }
