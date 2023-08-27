@@ -151,3 +151,13 @@ func AssertValue(value interface{}, typeName string) (interface{}, error) {
 
 	return nil, fmt.Errorf("Type assertion failed: %v", typeName)
 }
+
+// IsZeroOfUnderlyingType return the param x is zero value or not
+// Specially, if x is pointer, only it is nil will return true.
+// Because zero value of a pointer is nil.
+func IsZeroOfUnderlyingType(x interface{}) bool {
+	if x == nil {
+		return true
+	}
+	return reflect.DeepEqual(x, reflect.Zero(reflect.TypeOf(x)).Interface())
+}
