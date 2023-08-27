@@ -67,13 +67,13 @@ func DefaultGenerator(incremental bool, filter string) {
 	defaultConfig := DefaultConfig
 	defaultConfig.Incremental = incremental
 	defaultConfig.FilterKeyword = filter
-	err := NewGenerator(DefaultConfig).generate()
+	err := NewGenerator(DefaultConfig).Generate()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (g *Generator) generate() (err error) {
+func (g *Generator) Generate() (err error) {
 	if g.Config.FilterKeyword == "" {
 		fmt.Fprint(os.Stdout, colorize("!!!Recommendation: Use partial model like 'make ag filter=/payment/' to make it faster.\nThe 'filter' can be any part of the path. Such as 'inbound', 'thirdparty', 'lianlian' .etc.\n", colorMagenta))
 	}
